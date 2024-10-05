@@ -1,0 +1,73 @@
+%===============================================================================
+% ifacconf.tex 2022-02-11 jpuente  
+% 2022-11-11 jpuente change length of abstract
+% Template for IFAC meeting papers
+% Copyright (c) 2022 International Federation of Automatic Control
+%===============================================================================
+\documentclass{ifacconf}
+
+\usepackage{graphicx}      % include this line if your document contains figures
+\usepackage{natbib}        % required for bibliography
+%===============================================================================
+\begin{document}
+	\begin{frontmatter}
+		
+		\title{Methods of Reducing Computational Requirements for Large Language Models} 
+		% Title, preferably not more than 10 words.
+		
+		\author[First]{Oleksandr Kononov} 
+		
+		\address[First]{South East Technological University, 
+			Cork Road, Waterford, Ireland (e-mail: 20071032@mail.wit.ie).}
+		
+		\begin{abstract}                % Abstract of 50--100 words
+			TODO
+		\end{abstract}
+		
+		\begin{keyword}
+			Artificial intelligence, Neural networks, 
+		\end{keyword}
+		
+	\end{frontmatter}
+	%===============================================================================
+	
+	\section{Introduction}
+	\subsection{Background}
+	Large Language Model (LLM) is neural network model which is very capable at natural language tasks such as text generation, text summarization, translation, and more. \cite{vaswani2017attentionneed} proposed the novel Transformer architecture which has revolutionized the field by introducing more efficient multi-headed self-attention mechanism compared to Recurrent Neural Networks that came before. With the improvements in training times, better parallelization on GPUs and overall quality of output.
+	Following this, OpenAI have used this novel Transformer architecture to design and develop their Generative Pre-Trained Transformer (GPT) LLMs the following years. In particular, the release of GPT-3 in 2020, has sparked a global interest in the continued development of LLMs from various companies such as Meta with LLaMa, Google with Gemma, Antropic with Claude, etc.
+	
+	\cite{touvron2023llamaopenefficientfoundation} developed a series of open-weight LLMs called LLaMa, ranging from 7B parameters to 65B parameters. Their paper demonstrates, using various benchmark tests, we can draw a correlation between the increase in LLM parameters and the scores that it can achieve from the benchmark tests. There are challenges with regards to the computational requirements necessary for inferencing LLMs,``the compute and memory requirements of state-of-the-art language models have grown by three orders of magnitude in the last three years, and are projected to continue growing far faster than hardware capabilities" \cite[p.~97]{bommasani2022opportunitiesrisksfoundationmodels}.
+	% TODO (introduce what quantization is)
+	
+	\subsection{Problem Statement and Motivation}
+	
+	\subsection{Research Objectives}
+	\subsection{Research Questions}
+	This paper aims to answer the following Research Questions (RQ):
+	\begin{itemize}
+		\item \textbf{RQ1} How the various quantization methods that are in-use work?
+		\item \textbf{RQ2} What are quality impacts of quantization on LLMs?
+		\item \textbf{RQ3} What are the performance improvements that can be expected of a quantized LLM on low-end hardware?
+	\end{itemize}
+	
+	
+	\section{Preliminary Literature Review}
+	
+	\section{Working Theory}
+	
+	\section{Research Design}
+	\subsection{Introduction}
+	\subsection{Design}
+	
+	\section{Conclusion}
+	
+	
+	\begin{ack}
+		Place acknowledgments here. (left-over from IFAC template, not sure if I will need it yet)
+	\end{ack}
+	
+	\bibliography{proposal}
+	
+	\appendix
+	\section{Appendix A}
+\end{document}
