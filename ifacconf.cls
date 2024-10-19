@@ -1685,16 +1685,16 @@ et\or eu\or ew\or ex\or ey\or ez\else\@ctrerr\fi}
   \let\@evenhead\@oddhead
   \def\@oddfoot{}\let\@evenfoot\@oddfoot
 }
-\newif\ifNAT@numbers
+%\newif\ifNAT@numbers
 \AtBeginDocument{%
 \@ifpackageloaded{harvard}{}{
   \RequirePackage{natbib}
-  %\bibliographystyle{plainnat}
-  \bibliographystyle{ifacconf}
+  \bibliographystyle{plain}
+  %\bibliographystyle{ifacconf}
 }}
 \@bsphack
-\AtEndDocument
-  {\immediate\write\@auxout{\string\global\string\NAT@numbersfalse}}
+%\AtEndDocument
+%  {\immediate\write\@auxout{\string\global\string\NAT@numbersfalse}}
 \def\@logohead{%
 \bgroup
 \footnotesize
