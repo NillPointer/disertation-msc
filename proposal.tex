@@ -8,6 +8,8 @@
 
 \usepackage{hyperref}
 \usepackage{graphicx}      % include this line if your document contains figures
+\graphicspath{ {./images/} }
+\usepackage{caption}
 \usepackage{natbib}        % required for bibliography
 \usepackage{glossaries}    % required for glossary
 
@@ -43,7 +45,7 @@
 	
 	The AI researchers at Meta have developed a series of open-weight \glspl{llm} called LLaMa, ranging from 7B parameters to 65B parameters \cite{touvron2023llamaopenefficientfoundation}. Their paper demonstrates, using various benchmark tests, we can draw a correlation between the increase in \glspl{llm} parameters and the scores that it can achieve on various benchmark tests such as HellaSwag \cite{zellers2019hellaswagmachinereallyfinish}, WinoGrande \cite{sakaguchi2019winograndeadversarialwinogradschema}, ARC \cite{clark2018thinksolvedquestionanswering} and OpenBookQA \cite{mihaylov2018suitarmorconductelectricity}. There are challenges with regards to the computational requirements necessary for inferencing \glspl{llm},``the compute and memory requirements of state-of-the-art language models have grown by three orders of magnitude in the last three years, and are projected to continue growing far faster than hardware capabilities" \cite[p.~97]{bommasani2022opportunitiesrisksfoundationmodels}.
 	
-	Quantization and pruning are some of the strategies that can be used to help reduce computational requirement and memory footprint of \glspl{llm}. However applying these strategies often comes at the cost of increasing the \gls{llm} \gls{ppl}, a metric for evaluation the uncertainty of a model in predicting a sequence. Quantization methods involve reducing the numerical precision of the model's weights, allowing 32-bit floating point value to be represented as an 8-bit floating point value or even lower. Popular quantization include \gls{gguf}\cite{llamacpp}, \gls{awq}\cite{lin2024awqactivationawareweightquantization}, \gls{vptq}\cite{liu2024vptqextremelowbitvector} and others. Pruning involves removing parts of the model that have little effect on the output, this process could involve removing neurons or entire layers.
+	Quantization and pruning are some of the strategies that can be used to help reduce computational requirement and memory footprint of \glspl{llm}. However applying these strategies often comes at the cost of increasing the \gls{llm} \gls{ppl}, a metric for evaluation the uncertainty of a model in predicting a sequence. Quantization methods involve reducing the numerical precision of the model's weights, allowing 32-bit floating point value to be represented as an 8-bit floating point value or even lower. Popular quantization include \gls{gguf}\cite{llamacpp, ggml}, \gls{awq}\cite{lin2024awqactivationawareweightquantization}, \gls{vptq}\cite{liu2024vptqextremelowbitvector} and others. Pruning involves removing parts of the model that have little effect on the output, this process could involve removing neurons or entire layers.
 	
 	\subsection{Problem Statement and Motivation}
 	
@@ -71,8 +73,23 @@
 	
 	
 	\section{Preliminary Literature Review}
-	This section will explore the supporting research literature that will cover the topics of various \gls{ptq} methods and pruning methods. 
-	\subsection{}
+	This section will explore the supporting research literature that will cover the topics of various \gls{ptq} methods, pruning methods and what kind of benchmark tests exist for \gls{llm} evaluation that are used in the industry. 
+	
+	\subsection{\gls{llm} \gls{ptq} Methods}
+	Arguably, one of the most well known \gls{llm} quantization method within the open-source/open-weight \gls{llm} community is \gls{gguf}. The initial library \gls{ggml} was developed by Georgi Gerganov in 2022, similar to other machine learning libraries such as PyTorch and Tensorflow, \glspl{ggml} purpose was to provide a minimal, lightweight and efficient tool for on-device \gls{llm} inference \cite{ggmlhuggingface}. The successor to \gls{ggml} is the \gls{gguf} format which aimed to improve upon the previous \gls{ggml} format by adding support for format versioning, model metadata and support for other architectures \cite{ggufgithub} (see \ref{fig:gguf}).
+	
+	\begin{figure}
+		\begin{center}
+			\includegraphics[width=\linewidth]{gguf}
+			\caption{GGUF Format Breakdown}
+			\label{fig:gguf}
+		\end{center}
+	\end{figure}
+	
+	
+	\subsection{\gls{llm} Pruning}
+	
+	\subsection{\gls{llm} Benchmarking}
 	
 	\section{Working Theory}
 	
