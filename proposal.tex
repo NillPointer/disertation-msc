@@ -12,9 +12,7 @@
 \usepackage{caption}
 \usepackage[square,sort&compress,sectionbib,numbers]{natbib}        % required for bibliography
 \usepackage{glossaries}    % required for glossary
-\usepackage{float}
 \usepackage{cuted}
-
 \makeglossaries
 \loadglsentries{glossary}  % loading the glossary.tex file
 
@@ -77,18 +75,42 @@
 	\section{Preliminary Literature Review}
 	This section will explore the supporting research literature that will cover the topics of various \gls{ptq} methods, pruning methods and what kind of benchmark tests exist for \gls{llm} evaluation that are used in the industry. 
 	
-	\subsection{\gls{llm} \gls{ptq} Methods}
+	\subsection{\gls{gguf} \gls{ptq}}
 	
-	Arguably, one of the most well known \gls{llm} quantization method within the open-source/open-weight \gls{llm} community is \gls{gguf}. The initial library \gls{ggml} was developed by Georgi Gerganov in 2022, similar to other machine learning libraries such as PyTorch and Tensorflow, \glspl{ggml} purpose was to provide a minimal, lightweight and efficient tool for on-device \gls{llm} inference \cite{ggmlhuggingface}. The successor to \gls{ggml} is the \gls{gguf} format which aimed to improve upon the previous \gls{ggml} format by adding support for format versioning, model metadata and support for other architectures \cite{ggufgithub} (see figure \ref{fig:gguf}).
+	One of the most well known \gls{llm} quantization method within the open-source/open-weight \gls{llm} community is \gls{gguf}. The initial library \gls{ggml} was developed by Georgi Gerganov in 2022, similar to other machine learning libraries such as PyTorch and Tensorflow, \glspl{ggml} purpose was to provide a minimal, lightweight and efficient tool for on-device \gls{llm} inference \cite{ggmlhuggingface}. The successor to \gls{ggml} format is the \gls{gguf} format which aimed to improve upon the previous \gls{ggml} format by adding support for format versioning, model metadata and support for other architectures \cite{ggmlgithubdocs} (see figure \ref{fig:gguf}).
 
 	
 	\begin{strip}
 		\includegraphics[width=\linewidth, height=0.5\textheight]{gguf}
-		\captionof{figure}{GGUF Format Breakdown}
+		\captionof{figure}{GGUF Format Breakdown \cite{ggmlgithubdocs}}
 		\label{fig:gguf}
 	\end{strip}
 	
-	The 
+	
+	\begin{strip}
+		\includegraphics[width=\linewidth, height=0.25\textheight]{awq}
+		\captionof{figure}{\gls{awq} method showing how scaling \textit{salient} weights before quantizations shows comparable results to mixed precision weights but without the hardware inefficiencies mix precision introduces. \cite{lin2024awqactivationawareweightquantization}}
+		\label{fig:awq}
+	\end{strip}
+	
+	The \texttt{llama.cpp} software developed by Georgi Gerganov and the open-source community is used to load the \gls{gguf} format. After it is loaded and processed based on the stored metadata, the underlying \gls{ggml} library can then begin inferencing the \gls{llm} \cite{ggufgithub}. The \gls{gguf} format offers various quantization options, originally the quantization method was to simply split each layer into blocks of 256 weights and each block is then converted into their 256 quantized values, this was demoted with a \textbf{Q}. Additionally, there are two quantization type, "type-0" (\textbf{Q4\_0}, \textbf{Q5\_0}, etc) where weights $w$ are calculated from quants $q$ and block scale $d$ using $w = d * q$. While "type-1" (\textbf{Q4\_1}, \textbf{Q5\_1}, etc) include an additional block minimum constant $m$ such that $w = d * q + m$ \cite{ggufgithubquantdoc, ggufgithubkquantpr}. 
+	
+	Later the community have developed the \textbf{K} Quants, which expand the quantization range to include 2-bit, 3-bit and 6-bit quantization and includes prioritization for certain weights over others (as denoted by suffixes like \textbf{Q3\_K\_S}, \textbf{Q3\_K\_M}, \textbf{Q3\_K\_L}) which leads to smaller models with less \gls{ppl} increase \cite{ggufgithubkquantpr}. The newest form of \gls{gguf} quants are the \textbf{I} Quants which added a new low bit quantization \cite{ggufgithubiquantpr} which is based on the QuIP\# paper \cite{tseng2024quipbetterllmquantization}, which suggests grouping even number of either positive or negative signed values into 8 quants, allowing sign information to be recorded using only 7 bits and if needed flipping the sign of the least important quants to maintain even count, while the magnitude of the 8 quant groups can be stored in a E8 lattice structure using 8 bits to record the grid point index \cite{ggufgithubiquantpr}. 
+	
+	\subsection{\gls{awq} \gls{ptq}}
+	
+	Similar to the \textbf{K} Quants of \gls{gguf}, the \gls{awq} method proposes a similar approach of selectively quantizing \gls{llm} weights depending on their importance by analysing the model activation patterns \cite{lin2024awqactivationawareweightquantization}. This method identifies \textit{salient} weights in the \gls{llm} that hold more importance to the \gls{llm} performance and withhold quantization for those weights, thereby avoiding significant performance degradation while reducing the model size. However, having  mixed precision weights is not hardware-efficient, it was found that scaling the weights before quantization mitigates this issue while still preserving the benefits (see figure \ref{fig:awq})
+	
+	\subsection{\gls{vptq} \gls{ptq}}
+	
+	Similar to the \textbf{I} Quants of \gls{gguf}, the \gls{vptq} method is a low bit \gls{llm} quantization method that claims better accuracy and for 1-2 bit \gls{llm} quantization compared to other conventional methods. It tries to achieve this by compressing vectors into indices by using lookup tables with additional refinement of weights using Channel-
+	Independent Second-Order Optimization \cite{liu2024vptqextremelowbitvector}. It differs from the previously covered \gls{awq} method as instead of reducing precision of the weights, it builds an index that maps high-dimensional vectors to lower-dimensional vectors. According to the graph on figure \ref{fig:vptq}, it's performance is comparable to QuIP\# method which the \textbf{I} Quants of \gls{gguf} are based on.
+	
+	\begin{figure}[h]
+		\includegraphics[width=1.1\linewidth]{vptq}
+		\captionof{figure}{Graph showing \gls{ppl} of Wikitext2 dataset compared to model size using various \gls{ptq} methods \cite{vptqgithub}}
+		\label{fig:vptq}
+	\end{figure}
 	
 	\subsection{\gls{llm} Pruning}
 	
