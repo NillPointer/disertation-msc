@@ -41,12 +41,12 @@
 	%===============================================================================
 	\section{Introduction}
 	\subsection{Background}
-	A \gls{llm} is neural network model which is capable at working with natural language tasks such as text generation, tmeasurmentext summarization, translation, and more. The novel Transformer architecture proposed in the ``Attention Is All You Need" paper \cite{vaswani2017attentionneed} has revolutionized the field by introducing more efficient multi-headed self-attention mechanism compared to Recurrent Neural Networks that came before. With the improvements in training times, better parallelization on GPUs and overall quality of output.
+	A \gls{llm} is neural network model which is capable at working with natural language tasks such as text generation, text summarization, translation, and more. The novel Transformer architecture proposed in the ``Attention Is All You Need" paper \cite{vaswani2017attentionneed} has revolutionized the field by introducing more efficient multi-headed self-attention mechanism compared to Recurrent Neural Networks that came before. With the improvements in training times, better parallelization on GPUs and overall quality of output.
 	Following this, OpenAI have used this novel Transformer architecture to design and develop their \gls{gpt} \glspl{llm} the following years. In particular, the release of GPT-3 in 2020, has sparked a global interest in the continued development of \glspl{llm} from various companies such as Meta with LLaMa, Google with Gemma, Antropic with Claude, etc.
 	
 	The AI researchers at Meta have developed a series of open-weight \glspl{llm} called LLaMa, ranging from 7B parameters to 65B parameters \cite{touvron2023llamaopenefficientfoundation}. Their paper demonstrates, using various benchmark tests, we can draw a correlation between the increase in \glspl{llm} parameters and the scores that it can achieve on various benchmark tests such as HellaSwag \cite{zellers2019hellaswagmachinereallyfinish}, WinoGrande \cite{sakaguchi2019winograndeadversarialwinogradschema}, ARC \cite{clark2018thinksolvedquestionanswering} and OpenBookQA \cite{mihaylov2018suitarmorconductelectricity}. There are challenges with regards to the computational requirements necessary for inferencing \glspl{llm},``the compute and memory requirements of state-of-the-art language models have grown by three orders of magnitude in the last three years, and are projected to continue growing far faster than hardware capabilities" \cite[p.~97]{bommasani2022opportunitiesrisksfoundationmodels}.
 	
-	Quantization and pruning are some of the strategies that can be used to help reduce computational requirement and memory footprint of \glspl{llm}. However applying these strategies often comes at the cost of increasing the \gls{llm} \gls{ppl}, a metric for evaluation the uncertainty of a model in predicting a sequence. Quantization methods involve reducing the numerical precision of the model's weights, allowing 32-bit floating point value to be represented as an 8-bit floating point value or even lower. Popular quantization include \gls{gguf}\cite{llamacpp, ggml}, \gls{awq}\cite{lin2024awqactivationawareweightquantization}, \gls{vptq}\cite{liu2024vptqextremelowbitvector} and others. Pruning involves removing parts of the model that have little effect on the output, this process could involve removing neurons or entire layers.
+	Quantization and pruning are some of the strategies that can be used to help reduce computational requirement and memory footprint of \glspl{llm}. However applying these strategies often comes at the cost of increasing the \gls{llm} \gls{ppl}, a metric for evaluation the uncertainty of a model in predicting a sequence. Quantization methods involve reducing the numerical precision of the model's weights, allowing 32-bit floating point value to be represented as an 8-bit floating point value or even lower. Popular quantization include \gls{gguf}\cite{llamacpp, ggml}, \gls{awq}\cite{lin2024awqactivationawareweightquantization}, \gls{vptq}\cite{liu2024vptqextremelowbitvector} and others. Pruning involves removing parts of the model that have little effect on the output, this process could involve removing blocks or entire layers.
 	
 	\subsection{Problem Statement and Motivation}
 	
@@ -55,24 +55,24 @@
 	If in the future, smaller \glspl{llm} become more capable than they are today, it stands to reason that their larger counterparts would likewise become more capable. Therefore, finding efficient and cost effective methods of reducing hardware requirements for running large \glspl{llm} is holds meaningful significance in helping to democratize access to powerful \glspl{llm}.
 	
 	\subsection{Research Scope and Limitations}
-	This research will be using a select few foundational \glspl{llm} for testing and evaluation. The selected \glspl{llm} will be Gemma2 9B from Google\cite{gemmateam2024gemma2improvingopen}, LLaMa 3.1 from Meta 8B \cite{dubey2024llama3herdmodels} and Qwen2.5 7B from Alibaba\cite{qwen2.5}. These models were selected due to their research permissive licenses, \gls{llm} community popularity and reputability of the companies that have trained them.
+	This research will be using a select few foundational \glspl{llm} for testing and evaluation. The \gls{selectedModels} will be Gemma2 9B from Google\cite{gemmateam2024gemma2improvingopen}, LLaMa 3.1 from Meta 8B \cite{dubey2024llama3herdmodels} and Qwen2.5 7B from Alibaba\cite{qwen2.5}. These models were selected due to their research permissive licenses, \gls{llm} community popularity and reputability of the companies that have trained them.
 	
-	The hardware for conducting this research will be limited to a single Nvidia RTX 4090 GPU with 24GB of VRAM, which will be sufficient to run the selected \glspl{llm} without any quantization. This will allow the researcher to establish baseline metrics and benchmark scores pre-quantization, which can be used to compare against post-quantized results of the selected \glspl{llm}.
+	The hardware for conducting this research will be limited to a single Nvidia RTX 4090 GPU with 24GB of VRAM, which will be sufficient to run the \gls{selectedModels} without any quantization. This will allow the researcher to establish baseline metrics and benchmark scores pre-quantization, which can be used to compare against post-quantized results of the \gls{selectedModels}.
 	
-	The hardware used to demonstrate the effects and performance of \gls{llm} quantization will be a single Raspberry Pi 4b, which has quad-core Cortex-A72 @ 1.5GHz CPU and 8GB LPDDR4 RAM \cite{raspberrypi4}. This device was chosen for it's limited hardware specifications, that should under normal circumstances be insufficient run any of the selected \glspl{llm} previously mentioned. As such, it qualifies to be a test device for this papers research and would serve as a baseline for future research evaluating more capable devices.
+	The hardware used to demonstrate the effects and performance of \gls{llm} quantization will be a single Raspberry Pi 4b, which has quad-core Cortex-A72 @ 1.5GHz CPU and 8GB LPDDR4 RAM \cite{raspberrypi4}. This device was chosen for it's limited hardware specifications, that should under normal circumstances be insufficient run any of the \gls{selectedModels} previously mentioned. As such, it qualifies to be a test device for this papers research and would serve as a baseline for future research evaluating more capable devices.
 	
 	This research will be limited to exploring \gls{ptq} methods and not \gls{qat} methods, as the later requires significant computational resources and time in order to carry out such research. \gls{ptq} methods are significantly less computationally intensive to perform on pre-trained \glspl{llm} and require less time to quantize \gls{llm} weights.
 	
 	With regards to benchmark and evaluation tests, there exists a large pool of datasets curated for various purposes. This research will select a subset of popular and often used datasets from the categories such as \textbf{General Knowledge and Language Understanding}, \textbf{Reasoning Capabilities}, \textbf{Truthfulness} and \textbf{Instruction Following}.
 	
 	\subsection{Research Questions}
-	This paper aims to answer the following Research Questions (RQ):
+	This paper aims to answer the following \glspl{rq}:
 	
-	\textbf{RQ1}: What quantization methods (\gls{gguf}, \gls{awq}, \gls{vptq}) are the most effective for reducing selected \glspl{llm} inferencing requirements while retaining most of it's output quality?
+	\textbf{\gls{rq}1}: What quantization methods (\gls{gguf}, \gls{awq}, \gls{vptq}) are the most effective for reducing \gls{selectedModels} inferencing requirements while retaining most of it's output quality?
 	
-	\textbf{RQ2}: What pruning strategies (block-wise, channel-wise, layer-wise) are the most effective for reducing selected \glspl{llm} inferencing requirements while retaining most of it's output quality?
+	\textbf{\gls{rq}2}: What pruning strategies (block-wise, channel-wise, layer-wise) are the most effective for reducing \gls{selectedModels} inferencing requirements while retaining most of it's output quality?
 	
-	\textbf{RQ3}: Deriving the best performing method (or combination of methods) from the previous questions, what is the best achievable performance of selected \glspl{llm} on a Raspberry Pi 4b?
+	\textbf{\gls{rq}3}: Deriving the best performing method (or combination of methods) from the previous questions, what is the best achievable performance of \gls{selectedModels} on a Raspberry Pi 4b?
 	
 	
 	\section{Preliminary Literature Review}
@@ -104,11 +104,11 @@
 	
 	\subsection{\gls{awq} \gls{ptq}}
 	
-	Similar to the \textbf{K} Quants of \gls{gguf}, the \gls{awq} method proposes a similar approach of selectively quantizing \gls{llm} weights depending on their importance by analysing the model activation patterns \cite{lin2024awqactivationawareweightquantization}. This method identifies \textit{salient} weights in the \gls{llm} that hold more importance to the \gls{llm} performance and withhold quantization for those weights, thereby avoiding significant performance degradation while reducing the model size. However, having  mixed precision weights is not hardware-efficient, it was found that scaling the weights before quantization mitigates this issue while still preserving the benefits (see figure \ref{fig:awq})
+	Similar to the \textbf{K} Quants of \gls{gguf}, the \gls{awq} method proposes a similar approach of selectively quantizing \gls{llm} weights depending on their importance by analysing the model activation patterns \cite{lin2024awqactivationawareweightquantization}. This method identifies \textit{salient} weights in the \gls{llm} that hold more importance to the \gls{llm} performance and withhold quantization for those weights, thereby avoiding significant performance degradation while reducing the model size. However, having  mixed precision weights is not hardware-efficient, it was found that scaling the weights before quantization mitigates this issue while still preserving the benefits (see figure \ref{fig:awq}).
 	
 	\subsection{\gls{vptq} \gls{ptq}}
 	
-	Similar to the \textbf{I} Quants of \gls{gguf}, the \gls{vptq} method is a low bit \gls{llm} quantization method that claims better accuracy and for 1-2 bit \gls{llm} quantization compared to other conventional methods. It tries to achieve this by compressing vectors into indices by using lookup tables with additional refinement of weights using Channel-
+	Similar to the \textbf{I} Quants of \gls{gguf}, the \gls{vptq} method is a low bit \gls{llm} quantization method that claims better accuracy for 1-2 bit \gls{llm} quantization compared to other conventional methods. It tries to achieve this by compressing vectors into indices by using lookup tables with additional refinement of weights using Channel-
 	Independent Second-Order Optimization \cite{liu2024vptqextremelowbitvector}. It differs from the previously covered \gls{awq} method as instead of reducing precision of the weights, it builds an index that maps high-dimensional vectors to lower-dimensional vectors. According to the graph on figure \ref{fig:vptq}, it's performance is comparable to QuIP\# method which the \textbf{I} Quants of \gls{gguf} are based on.
 	
 	\begin{figure}[h]
@@ -118,7 +118,9 @@
 	\end{figure}
 	
 	\subsection{\gls{llm} Pruning}
-	As mentioned in an earlier section, pruning is a method by which removes non-critical structures from a model such it maintains it's prior performance, this is often done to reduce its size and number of required computational operations. However the selection mechanism for which structures to remove can vary from random to structured and methodical. The LLM-Pruner paper proposes a structured removal process based on gradient information \cite{ma2023llmprunerstructuralpruninglarge}. The LLM-Pruner uses an algorithm to detect dependencies within a model, this allows them to select optimal structured groups for pruning based on their importance estimation. Finally, once pruned, the model undergoes a recovery phase where it's trained on a small dataset \cite{ma2023llmprunerstructuralpruninglarge}. 
+	Model pruning is a way of compressing the size of a model by removing certain components from the model while avoiding severe damage to how the model functions. This is achieved by removing redundant or unimportant singular or groups of neurons \cite{huang2024largelanguagemodelpruning}. There are two type of pruning methods that can be performed on a model, structured pruning and unstructured pruning, the former involves simplifying the model by removing entire structural weights such as channels or layers while maintaining the network structures, while the latter focuses on removing redundant neurons or links \cite{huang2024largelanguagemodelpruning}. Between the two approaches, structured pruning has much better hardware compatibility compared to unstructured pruning which maybe require additional software or hardware treatment to complete the task \cite{huang2024largelanguagemodelpruning}.
+	
+	LLM-Pruner is a tool developed to perform structural pruning on an \gls{llm} using gradient-based optimization processes for structure selection \cite{ma2023llmprunerstructuralpruninglarge}. The LLM-Pruner uses an algorithm to detect dependencies within a model, this allows them to select optimal structured groups for pruning based on their importance estimation. Like with most pruning methods, a post pruning re-training is required, which can be called a ``recovery" phase, where it's trained on a small dataset in order to help maintain it's performance \cite{ma2023llmprunerstructuralpruninglarge}.
 	
 	Unlike LLM-Pruner, the Bonsai pruning method does not use a gradient-based structured pruning and is designed for more typical consumer grade hardware to execute \cite{dery2024everybodyprunenowstructured}. It instead generates sub-models and evaluates their performance to give a more holistic view, which claim to outperform \gls{sota} ``gradient-based structured pruning methods like LLM-Pruner" \cite[p.~2]{dery2024everybodyprunenowstructured} on 4/6 evaluation tests. Similar to LLM-Pruner, the Bonsai method performs post pruning operations to help recover some lost performance, but unlike LLM-Pruner, it uses distillation from the original model to the pruned model. However, in some cases this post pruning adaptation may not be necessary due to the robustness of the \gls{llm} as well as redundancy of its modules \cite{dery2024everybodyprunenowstructured}.
 	
@@ -134,7 +136,20 @@
 	
 	Finally, for the \textbf{Instruction Following} there is the \gls{ifeval} dataset which was designed to evaluate how well a model follows a set of instructions in the prompt using verifiable instructions. A verifiable instruction is a specific, measurable and objective directive that, upon completion, can be checked and confirmed for adherence \cite{zhou2023instructionfollowingevaluationlargelanguage}. The \gls{ifeval} has identified 25 types of verifiable instructions and the dataset is comprised of 500 prompts based on those types. An example of such instruct prompt is ``write at least 25 sentence" which can be automatically and objectively verified \cite{zhou2023instructionfollowingevaluationlargelanguage}. This dataset is quite valuable as it stands to reason that a model that can follow instructions well will do better at answering multiple choice questions, which most of other previously mentioned datasets use, which require a certain level of structure in the response to be evaluated correctly.
 	
+	\subsection{Summary}
+	This preliminary literature review section has explored some of the existing \gls{llm} \gls{ptq} methods such as \gls{gguf}, \gls{awq} and \gls{vptq}. All of the discussed methods operate based on similar principals of reducing the precision of the numeric values within the model weights. The \gls{gguf}, being a community driven open-source project has more options for quantization available to it in the form of \textbf{K} quants (which selectively quantize certain weights over others) and \textbf{I} quants (which is based on QuIP\# method involving clever sign grouping and E8 lattice structure storage). Following from this, the \gls{llm} pruning methods LLM-Pruner and Bonsai function by removing parts of the model which has little impact on it's quality. The differing feature between the two approaches lies with it's selection process for the structured groups (gradient-based versus sub-model evaluation). Finally, benchmarking review covered various datasets that evaluate specific model capabilities such as \textbf{General Knowledge and Language Understanding}, \textbf{Reasoning Capabilities}, \textbf{Truthfulness} and \textbf{Instruction Following}. 
+	
 	\section{Working Theory}
+	Following from the preliminary literature review, the following \glspl{tp} were formulated:
+	
+	Considering the flexibilities and variations associated with \gls{ptq} methods, in particular \gls{gguf}, and the required post pruning ``recovery" phase of pruning methods.
+	
+	\textbf{\gls{tp}1}: On average, \gls{ptq} will be able to achieve maintain lower \gls{ppl} levels and higher benchmark scores at greater model compression ratios compared to pruning methods.
+	
+	Given the differences in how \gls{ptq} and pruning methods achieve their purpose being not mutually exclusive.
+	
+	\textbf{\gls{tp}2}: The combination of \gls{gpt} and pruning will achieve significantly lower model size compared to only using one approach over the other.
+	
 	
 	\section{Research Design}
 	\subsection{Introduction}
@@ -144,7 +159,7 @@
 	
 	\bibliography{proposal}
 	
-	\printglossary[title={Abbreviations}]
+	\printglossary[title={Glossary}]
 	
 	\appendix
 	\section{Appendix A}
