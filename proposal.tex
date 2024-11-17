@@ -80,7 +80,8 @@
 	
 	\subsection{\gls{gguf} \gls{ptq}}
 	
-	One of the most well known \gls{llm} quantization method within the open-source/open-weight \gls{llm} community is \gls{gguf}. The initial library \gls{ggml} was developed by Georgi Gerganov in 2022, similar to other machine learning libraries such as PyTorch and Tensorflow, \glspl{ggml} purpose was to provide a minimal, lightweight and efficient tool for on-device \gls{llm} inference \cite{ggmlhuggingface}. The successor to \gls{ggml} format is the \gls{gguf} format which aimed to improve upon the previous \gls{ggml} format by adding support for format versioning, model metadata and support for other architectures \cite{ggmlgithubdocs} (see figure \ref{fig:gguf}).
+	One of the most well known \gls{llm} quantization method within the open-source/open-weight \gls{llm} community is \gls{gguf}. Developed by Georgi Gerganov  in 2022, it started as a machine learning library written in C and C++ called \gls{ggml}. Unlike other holistic machine learning libraries like PyTorch and TensorFlow, \gls{ggml} primary focus was Transformer inference while being minimal, lightweight and efficient \cite{ggmlhuggingface}. It introduced the \gls{ggml} quantization file format to facilitate easy sharing and running of models, and designed to contain all necessary model information to be able to load it.
+	The successor to \gls{ggml} format is the \gls{gguf} format which aimed to improve upon the shortcomings of the \gls{ggml} format by adding support for format versioning, model metadata and support for other \gls{llm} architectures \cite{ggmlgithubdocs} (see figure \ref{fig:gguf}).
 	\\
 	\begin{strip}
 		\begin{minipage}{\textwidth}\centering
@@ -143,13 +144,18 @@
 	Following from the preliminary literature review, this section will define \glspl{tp} based on the previously reviewed literature which will help guide this papers \glspl{rq}.
 	
 	\textbf{\gls{tp}1}: \textit{The effectiveness of \gls{ptq} techniques in reducing computational requirements is influenced by the \gls{llm} architecture, where certain architectures benefit more than others}.\\
+	Just like how the architecture of the model must be known in order to load it for inferencing, it must be known in order to perform \gls{ptq} operations. Given that there are many emerging architectures for \glspl{llm}, it stands to reason that some architectures would have greater support for quantization compared to others. Given that Meta's LLaMa has a strong community following, it would have better support from the community compared to more obscure models.
 	
 	
 	\textbf{\gls{tp}2}: \textit{The combination of \gls{ptq} and pruning can achieve significant reduction in hardware requirements compared to using only one approach over the other}.\\
+	As covered earlier, quantization operates primary relies on reducing numerical precision of the models' weights, and does not alter the structural behaviour of the model, unlike pruning methods. Therefore, it's reasonable to consider the two methods are non-mutually exclusive and in theory can be applied to the same model and thereby greatly reduce it's hardware requirements.
 	
-	\textbf{\gls{tp}3}: \textit{The impacts of \gls{ptq} and pruning on \gls{llm} performance can vary across different types of tasks (e.g. Instruction Following, Reasoning, Knowledge) }.\\
+	\textbf{\gls{tp}3}: \textit{The impacts of \gls{ptq} and pruning on \gls{llm} performance can vary across different types of tasks (i.e. Instruction Following, Knowledge)}.\\
+	During \gls{llm} training, instruction following capabilities are fine-tuned on a base model, which has been trained solely to predict the next token in a sequence, unlike it's ``knowledge" capabilities which would be instilled throughout the training process. Considering how non-uniform the training process is with respect to different \gls{llm} capabilities, it stands to reason that impacts of model compression techniques would not be distributed uniformly.
+	
 	
 	\textbf{\gls{tp}4}: \textit{An \glspl{llm} reasoning tasks will be more strongly impacted compared to knowledge retrieval tasks after applying a \gls{ptq} or pruning method}.\\
+	Following from the previous \gls{tp}, reasoning tasks such as problem-solving and logical inference would require a model to be able to integrate information from multiple parts of it's learned knowledge base, while knowledge retrieval is a more straightforward process. Given that model compression has some impact to quality, it's likely that reasoning related tasks would be more heavily impacted compared to knowledge retrieval tasks.
 	
 	
 	\section{Research Design}
