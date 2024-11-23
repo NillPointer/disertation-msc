@@ -5,6 +5,7 @@
 \newacronym{ptq}{PTQ}{Post Training Quantization}
 \newacronym{qat}{QAT}{Quantization Aware Training}
 \newacronym{ppl}{PPL}{Perplexity}
+\newacronym{tps}{TPS}{Tokens Per Second}
 \newacronym{gguf}{GGUF}{GPT-Generated Unified Format}
 \newacronym{ggml}{GGML}{GPT-Generated Model Language}
 \newacronym{awq}{AWQ}{Activation-Aware Weight Quantization}
@@ -17,4 +18,10 @@
 {
 	name=\textbf{Selected \glspl{llm}},
 	description={Gemma2B 9B, LLaMa 3.1 8B, Qwen2.5 7B}
+}
+
+\newglossaryentry{selectedQuants}
+{
+	name=\textbf{Selected \glspl{ptq} methods},
+	description={\gls{gguf}, \gls{awq}, \gls{vptq}}
 }
