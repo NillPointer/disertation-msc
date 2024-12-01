@@ -14,8 +14,37 @@
 \usepackage{glossaries}    % required for glossary
 \usepackage{cuted}
 \usepackage{float}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{pgfgantt}
 \makeglossaries
 \loadglsentries{glossary}  % loading the glossary.tex file
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+	backgroundcolor=\color{backcolour},   
+	commentstyle=\color{codegreen},
+	keywordstyle=\color{magenta},
+	numberstyle=\tiny\color{codegray},
+	stringstyle=\color{codepurple},
+	basicstyle=\ttfamily\footnotesize,
+	breakatwhitespace=false,         
+	breaklines=true,                 
+	captionpos=b,                    
+	keepspaces=true,                 
+	numbers=left,                    
+	numbersep=5pt,                  
+	showspaces=false,                
+	showstringspaces=false,
+	showtabs=false,                  
+	tabsize=2
+}
+
+\lstset{style=mystyle}
 
 %===============================================================================
 \begin{document}
@@ -41,49 +70,49 @@
 	%===============================================================================
 	\section{Introduction}
 	\subsection{Background}
-	A \gls{llm} is neural network model which is capable at working with natural language tasks such as text generation, text summarization, translation, and more. The novel Transformer architecture proposed in the ``Attention Is All You Need" paper~\cite{vaswani2017attentionneed} has revolutionized the field by introducing more efficient multi-headed self-attention mechanism compared to Recurrent Neural Networks that came before.
-	Following this, OpenAI have used this novel Transformer architecture to design and develop their \gls{gpt} \glspl{llm} in the following years. In particular, the release of GPT-3 in 2020, has sparked a global interest in the continued development of \glspl{llm} from various companies such as Meta with LLaMa, Google with Gemma, Antropic with Claude, etc.
+	An \gls{llm} is neural network model which is capable at working with natural language tasks such as text generation, text summarization, translation, and more. The novel Transformer architecture proposed in the ``Attention Is All You Need" paper~\cite{vaswani2017attentionneed} has revolutionized the field by introducing more efficient multi-headed self-attention mechanism compared to Recurrent Neural Networks that came before.
+	Following this, OpenAI have used this novel Transformer architecture to design and develop their \gls{gpt} \glspl{llm} in the following years. In particular, the release of GPT-3 in 2020, has sparked a global interest in the continued development of \glspl{llm} from various companies such as Meta, Google, Antropic and others.
 	
 	The AI researchers at Meta have developed a series of open-weight \glspl{llm} called LLaMa, ranging from 7B parameters to 65B parameters~\cite{touvron2023llamaopenefficientfoundation}. Their paper has demonstrated, using various benchmark tests, that we can draw a correlation between the increase in the amount of \glspl{llm} parameters and the scores that it can achieve on benchmark tests such as HellaSwag~\cite{zellers2019hellaswagmachinereallyfinish}, WinoGrande~\cite{sakaguchi2019winograndeadversarialwinogradschema}, ARC~\cite{clark2018thinksolvedquestionanswering} and OpenBookQA~\cite{mihaylov2018suitarmorconductelectricity}. However, this presents a number of challenges, especially with regards to computational requirements necessary to inference these large \glspl{llm},``the compute and memory requirements of state-of-the-art language models have grown by three orders of magnitude in the last three years, and are projected to continue growing far faster than hardware capabilities"~\cite[p.~97]{bommasani2022opportunitiesrisksfoundationmodels}.
 	
-	Quantization and pruning are some of the strategies that can be used to help reduce computational requirement and memory footprint of \glspl{llm}. However applying these strategies often comes at the cost of increasing the \gls{llm} \gls{ppl}, a metric for evaluation the uncertainty of a model in predicting a sequence. Quantization methods involve reducing the numerical precision of the model's weights, allowing 32-bit floating point value to be represented as an 8-bit floating point value or even lower. Popular quantization include \gls{gguf}~\cite{llamacpp, ggml}, \gls{awq}~\cite{lin2024awqactivationawareweightquantization}, \gls{vptq}~\cite{liu2024vptqextremelowbitvector} and others. Pruning involves removing parts of the model that have little effect on the output, this process could involve removing blocks or entire layers.
+	Quantization and pruning are some of the strategies that can be used to help reduce computational requirement and memory footprint of \glspl{llm}. However applying these strategies often comes at the cost of increasing the \gls{llm} \gls{ppl}, a metric for evaluation the uncertainty of a model in predicting a sequence of tokens. Quantization methods involve reducing the numerical precision of the model's weights, such as allowing 32-bit value to be represented as an 8-bit value for example. Popular quantization methods include \gls{gguf}~\cite{llamacpp, ggml}, \gls{awq}~\cite{lin2024awqactivationawareweightquantization}, \gls{vptq}~\cite{liu2024vptqextremelowbitvector} and others. Pruning on the other hand, involves removing parts of the model that have little effect on the output, this process could involve removing blocks or entire layers and often requires some level of model recovery after this procedure.
 	
 	\subsection{Problem Statement and Motivation}
 	
-	As mentioned in the previous section, the hardware requirements for medium to large sized  \glspl{llm} make it difficult for consumers or small organisations to run their own local  \glspl{llm}, often requiring to use third-party providers for access to modern powerful  \glspl{llm}. This potentially reduces their privacy, security and accessibility, which could be otherwise achieved by running  \glspl{llm} locally on their own hardware. For large businesses who might already be hosting their own models, this could be an opportunity to potentially reduce their running costs with regards to \glspl{llm}.
+	As mentioned in the previous section, the growing hardware requirements for medium to large sized  \glspl{llm} make it difficult for consumers or small organisations to run their own local  \glspl{llm}, often requiring to use third-party providers for access to powerful  \glspl{llm}. This has the potential to reduce their privacy, security and accessibility, which could be otherwise achieved by running \glspl{llm} locally on their own hardware. For large businesses who might already be hosting their own models, this could be an opportunity to potentially reduce their running costs with regards to \glspl{llm}.
 	
-	If in the future, smaller \glspl{llm} become more capable than they are today, it stands to reason that their larger counterparts would likewise become more capable. Therefore, finding efficient and cost effective methods of reducing hardware requirements for running large \glspl{llm} is holds meaningful significance in helping to democratize access to powerful \glspl{llm}.
+	If in the future, small sized \glspl{llm} become more capable than they are today, it still stands to reason that their larger counterparts would likewise become more capable. Therefore, finding efficient and cost effective methods of reducing hardware requirements for running large \glspl{llm} holds meaningful significance in helping to democratize access to powerful \glspl{llm}.
 	
 	\subsection{Research Scope and Limitations}
-	This research will be using a select few foundational \glspl{llm} for testing and evaluation. The \gls{selectedModels} will be Gemma2 9B from Google~\cite{gemmateam2024gemma2improvingopen}, LLaMa 3.1 from Meta 8B~\cite{dubey2024llama3herdmodels} and Qwen2.5 7B from Alibaba~\cite{qwen2.5}. These models were selected due to their research permissive licenses, \gls{llm} community popularity and reputability of the companies that have trained them.
+	This research will be using a select few foundational \glspl{llm} for testing and evaluation. The \gls{selectedModels} will be Gemma2 9B from Google~\cite{gemmateam2024gemma2improvingopen}, LLaMa 3.1 8B from Meta~\cite{dubey2024llama3herdmodels} and Qwen2.5 7B from Alibaba~\cite{qwen2.5}. These models were selected due to their research permissive licenses, community popularity and the reputability of parent companies that have trained them.
 	
 	Due to time limitations, this research will not be using all available \gls{ptq} methods, the \gls{selectedQuants} will be \gls{gguf}, \gls{awq} and \gls{vptq}.
 	
-	The hardware for conducting this research will be limited to a single Nvidia RTX 4090 GPU with 24GB of VRAM, which will be sufficient to run the \gls{selectedModels} without any quantization. This will allow the researcher to establish baseline metrics and benchmark scores pre-quantization, which can be used to compare against post-quantized results of the \gls{selectedModels}.
+	The hardware for conducting this research will be limited to a single Nvidia RTX 4090 GPU with 24GB of VRAM, which will be sufficient to run the \gls{selectedModels} without any modifications. This will allow the researcher to establish baseline metrics and benchmark scores, that can be used to compare against the results of compressed models from the \gls{selectedModels}.
 	
-	The hardware used to demonstrate the effects and performance of \gls{llm} quantization will be a single Raspberry Pi 4b, which has quad-core Cortex-A72 @ 1.5GHz CPU and 8GB LPDDR4 RAM~\cite{raspberrypi4}. This device was chosen for it's limited hardware specifications, that should under normal circumstances be insufficient run any of the \gls{selectedModels} previously mentioned. As such, it qualifies to be a test device for this papers research and would serve as a baseline for future research evaluating more capable devices.
+	The hardware used to demonstrate the effects and performance of \gls{llm} quantization will be a single Raspberry Pi 4b, which has quad-core Cortex-A72 @ 1.5GHz CPU and 8GB LPDDR4 RAM~\cite{raspberrypi4}. This device was chosen for it's limited hardware specifications, that should under normal circumstances be insufficient run any of the \gls{selectedModels} previously mentioned. As such, it qualifies to be a test edge device for the purposes of this research and would serve as a baseline for future research evaluating more capable devices.
 	
-	This research will be limited to exploring \gls{ptq} methods and not \gls{qat} methods, as the later requires significant computational resources and time in order to carry out such research. \gls{ptq} methods are significantly less computationally intensive to perform on pre-trained \glspl{llm} and require less time to quantize \gls{llm} weights.
+	This research will be limited to exploring \gls{ptq} methods and not \gls{qat} methods, as the latter requires significant computational resources and time in order to carry out such research. \gls{ptq} methods require significantly less computational resources and can be used on existing pre-trained \glspl{llm}.
 	
-	With regards to benchmark and evaluation tests, there exists a large pool of datasets curated for various purposes. This research will select a subset of popular and often used datasets from the categories such as \textbf{General Knowledge and Language Understanding}, \textbf{Reasoning Capabilities}, \textbf{Truthfulness} and \textbf{Instruction Following}.
+	With regards to benchmark and evaluation tests, there exists a large pool of datasets curated for various use cases. This research will select a subset of popular and often referenced datasets from categories such as \textbf{General Knowledge and Language Understanding}, \textbf{Reasoning Capabilities}, \textbf{Truthfulness} and \textbf{Instruction Following}.
 	
 	\subsection{Research Questions}
 	This paper aims to answer the following \glspl{rq}:
 	
-	\textbf{\gls{rq}1}: Out of the \gls{selectedQuants}, what method is the most effective for reducing \gls{selectedModels} inferencing requirements while retaining most of it's output quality?
+	\textbf{\gls{rq}1}: Out of the \gls{selectedQuants}, which method is the most effective at reducing \gls{selectedModels} inference requirements while retaining most of it's output quality?
 	
-	\textbf{\gls{rq}2}: What pruning strategies are the most effective for reducing \gls{selectedModels} inferencing requirements while retaining most of it's output quality?
+	\textbf{\gls{rq}2}: What pruning strategies are the most effective for reducing \gls{selectedModels} inference requirements while retaining most of it's output quality?
 	
-	\textbf{\gls{rq}3}: Deriving the best performing method (or combination of methods) from the previous questions, what is the best achievable performance of \gls{selectedModels} on a Raspberry Pi 4b?
+	\textbf{\gls{rq}3}: Deriving the best performing method (or combination of methods) from the previous questions, what is the best achievable quality and performance of \gls{selectedModels} on a Raspberry Pi 4b?
 	
 	
 	\section{Preliminary Literature Review}
-	This section will explore the supporting research literature that will cover the topics of the \gls{selectedQuants}, pruning methods and what kind of benchmark tests exist for \gls{llm} evaluation that are used in the industry. 
+	This section will examine the supporting research literature for the \gls{selectedQuants}, explore pruning methods and discuss the benchmark tests utilized in the industry for evaluating \glspl{llm}.
 	
 	\subsection{\gls{gguf} \gls{ptq}}
 	
-	One of the most well known \gls{llm} quantization method within the open-source/open-weight \gls{llm} community is \gls{gguf}. Developed by Georgi Gerganov  in 2022, it started as a machine learning library written in C and C++ called \gls{ggml}. Unlike other holistic machine learning libraries like PyTorch and TensorFlow, \gls{ggml} primary focus was Transformer inference while being minimal, lightweight and efficient~\cite{ggmlhuggingface}. It introduced the \gls{ggml} quantization file format to facilitate easy sharing and running of models, and designed to contain all necessary model information to be able to load it.
-	The successor to \gls{ggml} format is the \gls{gguf} format which aimed to improve upon the shortcomings of the \gls{ggml} format by adding support for format versioning, model metadata and support for other \gls{llm} architectures~\cite{ggmlgithubdocs} (see figure \ref{fig:gguf}).
+	One of the most well known \gls{llm} \gls{ptq} methods within the open-source/open-weight \gls{llm} community is \gls{gguf}. Developed by Georgi Gerganov  in 2022, it was initially developed as a machine learning library written in C and C++ called \gls{ggml}. Unlike other holistic machine learning libraries like PyTorch and TensorFlow, \gls{ggml} primary focus was Transformer model inferencing while being minimal, lightweight and efficient~\cite{ggmlhuggingface}. It introduced the \gls{ggml} quantization file format to facilitate easy sharing and execution of models, ensuring that it contains all necessary information required for loading in a single file.
+	The successor to \gls{ggml} is \gls{gguf}, a new format that is designed to  address the limitations of the \gls{ggml} format by incorporating support for versioning, model metadata, and greater compatibility with various \glspl{llm} architectures~\cite{ggmlgithubdocs} (see figure \ref{fig:gguf}).
 	\\
 	\begin{strip}
 		\begin{minipage}{\textwidth}\centering
@@ -101,9 +130,9 @@
 		\end{minipage}
 	\end{strip}
 	
-	The \texttt{llama.cpp} software developed by Georgi Gerganov and the open-source community is used to load the \gls{gguf} format. After it is loaded and processed based on the stored metadata, the underlying \gls{ggml} library can then begin inferencing the \gls{llm}~\cite{ggufgithub}. The \gls{gguf} format offers various quantization options, originally the quantization method was to simply split each layer into blocks of 256 weights and each block is then converted into their 256 quantized values, this was demoted with a \textbf{Q}. Additionally, there are two quantization type, ``type-0" (\textbf{Q4\_0}, \textbf{Q5\_0}, etc) where weights $w$ are calculated from quants $q$ and block scale $d$ using $w = d \times q$. While ``type-1" (\textbf{Q4\_1}, \textbf{Q5\_1}, etc) include an additional block minimum constant $m$ such that $w = d \times q + m$~\cite{ggufgithubquantdoc, ggufgithubkquantpr}. 
+	The \texttt{llama.cpp} software developed by Georgi Gerganov and the open-source community is used to load the \gls{gguf} format. After it is loaded and processed based on the stored metadata, the underlying \gls{ggml} library can then begin inferencing the \gls{llm}~\cite{ggufgithub}. The \gls{gguf} format offers various quantization options, originally the quantization method was to simply split each layer into blocks of 256 weights and each block is then converted into their 256 quantized values, this was denoted with the letter \textbf{Q}. Additionally, there are two quantization type, ``type-0" (\textbf{Q4\_0}, \textbf{Q5\_0}, etc) where weights $w$ are calculated from quants $q$ and block scale $d$ using $w = d \times q$. While ``type-1" (\textbf{Q4\_1}, \textbf{Q5\_1}, etc) include an additional block minimum constant $m$ such that $w = d \times q + m$~\cite{ggufgithubquantdoc, ggufgithubkquantpr}. 
 	
-	Later the community have developed the \textbf{K} Quants, which expand the quantization range to include 2-bit, 3-bit and 6-bit quantization and includes prioritization for certain weights over others (as denoted by suffixes like \textbf{Q3\_K\_S}, \textbf{Q3\_K\_M}, \textbf{Q3\_K\_L}) which leads to smaller models with less \gls{ppl} increase~\cite{ggufgithubkquantpr}. The newest form of \gls{gguf} quants are the \textbf{I} Quants which added a new low bit quantization~\cite{ggufgithubiquantpr} which is based on the QuIP\# paper~\cite{tseng2024quipbetterllmquantization}, which suggests grouping even number of either positive or negative signed values into 8 quants, allowing sign information to be recorded using only 7 bits and if needed flipping the sign of the least important quants to maintain even count, while the magnitude of the 8 quant groups can be stored in a E8 lattice structure using 8 bits to record the grid point index~\cite{ggufgithubiquantpr}. 
+	Later the community have developed the \textbf{K} Quants, which expand the quantization range to include 2-bit, 3-bit and 6-bit quantization and includes prioritization for certain weights over others (as denoted by suffixes like \textbf{Q3\_K\_S}, \textbf{Q3\_K\_M}, \textbf{Q3\_K\_L}) leading to smaller models with minimal \gls{ppl} increase~\cite{ggufgithubkquantpr}. The newest form of \gls{gguf} quants are the \textbf{I} quants, adding very low bit quantization capability~\cite{ggufgithubiquantpr} and is implemented based on the QuIP\# paper~\cite{tseng2024quipbetterllmquantization}. The QuIP\# method suggests grouping even number of either positive or negative signed values into 8 quants, allowing sign information to be recorded using only 7 bits and if needed flipping the sign of the least important quants to maintain even count, while the magnitude of the 8 quant groups can be stored in a E8 lattice structure using 8 bits to record the grid point index~\cite{ggufgithubiquantpr}. 
 	
 	\subsection{\gls{awq} \gls{ptq}}
 	
@@ -111,8 +140,7 @@
 	
 	\subsection{\gls{vptq} \gls{ptq}}
 	
-	Similar to the \textbf{I} Quants of \gls{gguf}, the \gls{vptq} method is a low bit \gls{llm} quantization method that claims better accuracy for 1-2 bit \gls{llm} quantization compared to other conventional methods. It tries to achieve this by compressing vectors into indices by using lookup tables with additional refinement of weights using Channel-
-	Independent Second-Order Optimization~\cite{liu2024vptqextremelowbitvector}. It differs from the previously covered \gls{awq} method as instead of reducing precision of the weights, it builds an index that maps high-dimensional vectors to lower-dimensional vectors. According to the graph on figure \ref{fig:vptq}, it's performance is comparable to QuIP\# method which the \textbf{I} Quants of \gls{gguf} are based on.
+	Similar to the \textbf{I} Quants of \gls{gguf}, the \gls{vptq} method is a low bit \gls{llm} quantization method that claims better accuracy for 1-2 bit \gls{llm} quantization compared to other conventional methods. It achieves this by compressing vectors into indices using lookup tables, with further refinement of weights using Channel-Independent Second-Order Optimization~\cite{liu2024vptqextremelowbitvector}. It differs from the previously covered \gls{awq} method as instead of reducing the precision of weights, it builds an index that maps high-dimensional vectors to lower-dimensional vectors. According to the graph on figure \ref{fig:vptq}, it's performance is comparable to QuIP\# method which the \textbf{I} Quants of \gls{gguf} are based on.
 	
 	\begin{figure}[h]
 		\includegraphics[width=1.1\linewidth]{vptq}
@@ -165,31 +193,132 @@
 	This section will cover how the research will be conducted for determining the most suitable method to reduce hardware requirement for running \glspl{llm}. It will systematically evaluate and compare all the variables this paper has laid out, them being the \gls{selectedModels}, \gls{selectedQuants} and the two pruning methods (LLM-Pruner and Bonsai). Using the previously discussed benchmark tests to evaluate various aspects of post-compression \glspl{llm} to their pre-compression evaluation. The research will also use a Raspberry Pi 4b as a constant variable to determine the optimal method (or combination of methods) out of the previously stated methods, to demonstrate their feasibility and practicality in real life use-cases.
 	
 	\subsection{Design}
-	Initially, it is necessary to establish a baseline against which the experiments can be compared against. To do this, it is necessary to be able to run the unmodified \gls{selectedModels} and gather various metrics from it such as \gls{ppl}, \gls{tps} output speed and the results of the benchmark tests for all the categories. The \gls{llm} sampling parameters must be deterministic for all tests, this can be done by setting the temperature to 0 and top\_k to 1, additionally the seed should be kept constant for reproducibility. This must be done for all the \gls{selectedModels} recorded to be used as baseline for each model.
+	Initially, it is necessary to establish a baseline against which the experiments can be compared against. To do this, it is necessary to be able to run the unmodified \gls{selectedModels} and gather various metrics from it such as \gls{ppl} (see appendix \ref{appendix:perplexity}), \gls{tps} output speed and the results of the benchmark tests for all the categories. The \gls{llm} sampling parameters must be deterministic for all tests, this can be done by setting the temperature to 0 and top\_k to 1, additionally the seed should be kept constant for reproducibility. This must be done for all the \gls{selectedModels} recorded to be used as baseline for each model.
 	
 	After the baseline metrics have been recorded, each of the \gls{selectedModels} must be quantized using each of the \gls{selectedQuants}. Following this, like with the baseline metrics, the sampling parameters must be deterministic, and all the same metrics must be recalculated for the quantized models and recorded. For certain quantization method like \gls{vptq} which are new and have less community support, some coding might be required to support certain \gls{llm} architectures.
 	
 	After all metrics for the \gls{selectedQuants} have been recorded, the same process must be done for the pruning methods using LLM-Pruner and Bonsai, likewise setting deterministic sampling parameters.
 	
-	In order to satisfy \textbf{\gls{rq}1}, the gathered metrics for quantized models can be directly compared to their unmodified counterpart to establish the percentage of quality loss for each metric, calculating a final score using:
+	In order to satisfy \textbf{\gls{rq}1}, it's important to have a formula for scoring the models based on the gathered metrics. We can use the expected decrease in benchmark score to compare against the uncompressed model score. 
+	
+	$$
+		D_i = \left(1 - \frac{B_i^c}{B_i^u}\right) \times 100\%
+	$$
+	$$
+		D_{\text{overall}} = \frac{1}{n} \sum_{i=1}^{n} D_i
+	$$
+	
+	Where $D_i$ is the decrease in benchmark $B$ score of compressed model $c$ over uncompressed model $u$ as a percentage.
+	
+	Additionally, to get a singular quality score value for a model, we can use the following formula to combine the weighted benchmark scores, \gls{ppl} and \gls{tps}:
 	
 	$$
 	Q = w_{B} \left( \sum_{x=1}^{n} w_x B_x \right) + w_{PPL} \left( \frac{1}{PPL} \right) + w_{TPS}(TPS) 
 	$$
 	
-	Where $n$ is the number of benchmarks $B$, and $w$ is the weight associated for that score.
+	Where $Q$ is the quality score of a model based on the weighted result of $n$ benchmarks $B$, weighted \gls{ppl} and weighted \gls{tps}.
 	
-	Similarly, to satisfy \textbf{\gls{rq}2}, the same can be repeated for pruned models using the same formula to compare.
+	Similarly, to satisfy \textbf{\gls{rq}2}, the same can be repeated for pruned models using the same formulas to compare uncompressed \glspl{llm} against their compressed counterpart.
 	
-	For the final \textbf{\gls{rq}3}, it is necessary to combine quantization and pruning methods. We can select the best scoring pruning method and attempt to use the best scoring \gls{ptq} method on it. The resulting model can be directly loaded on a Raspberry Pi 4b and evaluated for it's \gls{tps} and \gls{ppl}.
+	For the final \textbf{\gls{rq}3}, it may be necessary to combine quantization and pruning methods. We can select the best scoring pruning method and attempt to use the best scoring \gls{ptq} method on the \gls{selectedModels}. Resulting models can be directly loaded on a Raspberry Pi 4b and evaluated using our previously defined formulas, putting more emphasis on \gls{tps}.
+	
+	\subsection{Timeline}
+	
+	Below is an expected timeline for this research, showcasing the stages and projected time-frames for the work to be done. The \textit{Quantization} and \textit{Pruning} phases will involve applying the previously discussed model compression method against the \gls{selectedModels}. It is likely that some form of troubleshooting and potential code implementation might be required to support the \gls{selectedModels}. Once all the data has been gathered and documented, \textit{Evaluation \& Edge Device Test} phase will be used to interpret the results and apply the findings in a practical manner by using a Raspberry Pi 4b as a test edge device.
+	
+	Throughout this research, new discoveries such as \glspl{llm} and new \glspl{ptq} methods would be investigated in parallel to the other stages, as part of the \textit{Revising \& Updating} process. Findings from these discoveries will be documented and reflected in this research.\\\\
+	
+	\begin{strip}
+		\begin{minipage}{\textwidth}\centering
+			\begin{ganttchart}[
+				y unit title=0.4cm,
+				y unit chart=0.5cm,
+				vgrid,hgrid,
+				x unit=0.6cm,
+				title label anchor/.style={below=-1.6ex},
+				bar/.style={fill=blue!30},
+				milestone/.style={shape=circle, fill=green!30},
+				group/.style={fill=orange!30},
+				title left shift=.05,
+				title right shift=-.05,
+				title height=1,
+				progress label text={},
+				bar height=0.7,
+				group right shift=0,
+				group top shift=.6,
+				group height=.3]{1}{20}
+				
+				%labels
+				\gantttitle{Months}{20} \\
+				\gantttitle{January}{4} 
+				\gantttitle{February}{4} 
+				\gantttitle{March}{4} 
+				\gantttitle{April}{4} 
+				\gantttitle{May}{4}\\
+				
+				\ganttbar{Preparation \& Setup}{1}{4}\\
+				\ganttbar{Quantization}{5}{8}\\
+				\ganttbar{Pruning}{9}{12}\\
+				\ganttbar{Evaluation \& Edge Device Test}{13}{20}\\
+				\ganttbar{Finalizing}{17}{20}\\
+				
+				% Concurrent task
+				\ganttbar[bar/.style={fill=red!30}]{Revising \& Updating}{1}{20}\\
+			\end{ganttchart}
+		\end{minipage}
+	\end{strip}
 	
 	\section{Conclusion}
 	In conclusion, this research paper has proposed various popular \gls{llm} compression methods that can be used to reduce hardware requirements for inferencing \glspl{llm}. The paper has laid out it's working theory and design methods for how this research will be conducted.
 	
+	
 	\bibliography{proposal}
+	
+	\pagebreak
 	
 	\printglossary[title={Glossary}]
 	
+	\pagebreak
+	
 	\appendix
-	\section{Appendix A}
+	\section{Perplexity calculation code}
+	\label{appendix:perplexity}
+	\begin{minipage}{\textwidth}
+		\begin{lstlisting}[language=Python, caption=\url{https://gist.github.com/izikeros/e97a9d3359f3872b5e74cb36380c46ae}]
+		# gist for the blog post on https://safjan.com
+		import tiktoken
+		import math
+		
+		# Exemplary text
+		text = "Another vital aspect to consider in the realm of text generation is perplexity. Essentially, perplexity refers to the amount of information contained within a text. Natural language possesses a remarkable redundancy that enables effective communication, even in noisy environments such as a crowded bar or an intimate dinner. This redundancy allows for the overall message to be comprehended, even if certain parts of the text are missing or obscured."
+		
+		# Tokenize the text using tiktoken
+		tokens = tiktoken.tokenize(text)
+		
+		# Calculate the total number of tokens
+		total_tokens = len(tokens)
+		
+		# Create a dictionary to count the frequency of each token
+		token_freq = {}
+		for token in tokens:
+		if token in token_freq:
+		token_freq[token] += 1
+		else:
+		token_freq[token] = 1
+		
+		# Calculate the probability of each token
+		token_probabilities = {token: freq / total_tokens for token, freq in token_freq.items()}
+		
+		# Calculate the text probability by multiplying the probabilities of each token
+		text_probability = 1.0
+		for token in tokens:
+		text_probability *= token_probabilities[token]
+		
+		# Calculate the perplexity using the formula
+		perplexity = math.pow(text_probability, -1/total_tokens)
+		
+		print(f"Perplexity of the text: {perplexity:.2f}")
+		\end{lstlisting}
+	\end{minipage}
+	
 \end{document}
