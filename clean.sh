@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define the list of file extensions to keep
-extensions=("tex" "bst" "cls" "bib" "tex" "pdf" "sh")
+extensions=("tex" "bst" "cls" "bib" "tex" "sh")
 
 # Loop through each file in the current directory
 for file in *; do
