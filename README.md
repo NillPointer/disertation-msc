@@ -13,5 +13,5 @@ This repository contains my master's dissertation titled **"Methods of Reducing 
 
 You can access the full dissertation PDF directly from this repository. Click the link below to download or view the PDF:
 
-[Reducing Computational Requirements for Large Language Models (PDF)]([https://github.com/NillPointer/disertation-msc/blob/main/Reducing_Computational_Requirements_for_Large_Language_Models__Full_.pdf](https://github.com/NillPointer/disertation-msc/blob/master/Reducing_Computational_Requirements_for_Large_Language_Models__Full_.pdf))
+[Reducing Computational Requirements for Large Language Models (PDF)](https://github.com/NillPointer/disertation-msc/blob/main/Reducing_Computational_Requirements_for_Large_Language_Models__Full_.pdf)
 
