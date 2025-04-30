@@ -17,8 +17,6 @@
 \usepackage{listings}
 \usepackage{xcolor}
 \usepackage{pgfgantt}
-\usepackage{multirow}
-\usepackage{array} 
 \makeglossaries
 \loadglsentries{glossary}  % loading the glossary.tex file
 
@@ -135,7 +133,7 @@
 	The \texttt{llama.cpp} software developed by Georgi Gerganov and the open-source community is used to load the \gls{gguf} format. After it is loaded and processed based on the stored metadata, the underlying \gls{ggml} library can then begin inferencing the \gls{llm}~\cite{ggufgithub}. The \gls{gguf} format offers various quantization options, originally the quantization method was to simply split each layer into blocks of 256 weights and each block is then converted into their 256 quantized values, this was denoted with the letter \textbf{Q}. Additionally, there are two quantization type, ``type-0" (\textbf{Q4\_0}, \textbf{Q5\_0}, etc.) where weights $w$ are calculated from quants $q$ and block scale $d$ using $w = d \times q$. While ``type-1" (\textbf{Q4\_1}, \textbf{Q5\_1}, etc.) include an additional block minimum constant $m$ such that $w = d \times q + m$~\cite{ggufgithubquantdoc, ggufgithubkquantpr}. 
 	
 	Later the community have developed the \textbf{K} Quants, which expand the quantization range to include 2-bit, 3-bit and 6-bit quantization and prioritise certain weights over others (as denoted by suffixes like \textbf{Q3\_K\_S}, \textbf{Q3\_K\_M}, \textbf{Q3\_K\_L}) leading to smaller models with minimal \gls{ppl} increase~\cite{ggufgithubkquantpr}. The newest form of \gls{gguf} quants are the \textbf{I} quants, which add very low bit quantization capability~\cite{ggufgithubiquantpr} and are implemented based on the QuIP\# paper. According to this research paper, QuIP\# achieves low-bit quantization through clever groupings of quants. For instance, even numbers of either positive or negative signed values are grouped into 8 quants, allowing sign information to be recorded using only 7 bits. This, combined with the use of an E8 lattice structure, enables very low-bit quantization~\cite{tseng2024quipbetterllmquantization,ggufgithubiquantpr}. 
-	
+ 
 	
 	\subsection{\gls{awq} \gls{ptq}}
 	
@@ -205,10 +203,10 @@
 	In order to satisfy \textbf{\gls{rq}1}, it's important to have a formula for scoring the models based on the gathered metrics. We can use the expected decrease in benchmark score to compare against the uncompressed model score. 
 	
 	$$
-	D_i = \left(1 - \frac{B_i^c}{B_i^u}\right) \times 100
+		D_i = \left(1 - \frac{B_i^c}{B_i^u}\right) \times 100
 	$$
 	$$
-	D_{\text{overall}} = \frac{1}{n} \sum_{i=1}^{n} D_i
+		D_{\text{overall}} = \frac{1}{n} \sum_{i=1}^{n} D_i
 	$$
 	
 	Where $D_i$ is the percentage decrease in benchmark $i$ score of compressed model $B_i^c$ over uncompressed model $B_i^c$.
@@ -231,173 +229,49 @@
 	
 	Throughout this research, new discoveries such as \glspl{llm} and new \glspl{ptq} methods would be investigated in parallel to the other stages, as part of the \textit{Revising \& Updating} process. Findings from these discoveries will be documented and reflected in this research.\\\\
 	
-	
-	
-	\section{Research}
-	\subsection{Establishing a Baseline for \gls{selectedModels}}
-	In ordered to evaluate and demonstrate the effects of compression on a model, it is first necessary to establish a baseline to which we can compare the results. As covered in the previous sections, a set of recognized academic benchmark tests will be used to give us a baseline set of scores.
-	
-	Using \textit{lm-evaluation-harness}, a unified framework for testing \glspl{llm} on a large number of evaluation tasks \cite{eval-harness}, the benchmark tests \textbf{Hellaswag}, \textbf{AGIEval}, \textbf{TruthfulQA} and \textbf{IFEval} can be run in a consistent manner against our \gls{selectedModels}.
-	
-	\subsubsection{Setup}
-	The installation, setup and usage of lm-evaluation-harness is documented on their Github page, which simply involves cloning the repository and installing the package by running \verb|pip install -e .| in the project root directory. This will install all necessary dependencies including the \verb|transformers| package, which would be necessary to run uncompressed full-precision models. Table \ref{baseline-scores} shows the baseline tested scores, from running \verb|lm_eval| commands as shown in figure \ref{lm-eval-command}.
-	
-	\begin{figure}[H]
-		\centering
-		\begin{lstlisting}[language=bash,numbers=none]
-			lm_eval --model hf \
-			--model_args pretrained=google/gemma-2-9b-it \
-			--tasks hellaswag,agieval,truthfulqa,ifeval \
-			--device cuda:0 \
-			--batch_size 1
-		\end{lstlisting}
-		\captionof{figure}{lm-evaluation-harness command for Gemma2 9B}
-		\label{lm-eval-command}
-	\end{figure}
-	
 	\begin{strip}
-		\begin{minipage}{\textwidth}
-			\centering
-			\captionof{table}{\gls{gguf} Baseline Tested Scores and Official Scores}
-			\begin{tabular}{|c|c|c|c|c|c|c|c|c|}
-				\hline
-				\multirow{2}{*}{\textbf{}} &
-				\multicolumn{2}{c|}{\textbf{Gemma2 9B}} & \multicolumn{2}{c|}{\textbf{LLama3.1 8B}} & \multicolumn{2}{c|}{\textbf{Qwen2.5 7B}} \\
-				\cline{2-7}& 
-				Tested Score & Official Score &
-				Tested Score & Official Score & 
-				Tested Score & Official Score \\
-				\hline
-				\textbf{Hellaswag} & 81.05 & 81.9 & 79.17 & No Official Score & 80.47 & 80.2 \\
-				\hline
-				\textbf{AGIEval} & 49.65 & 52.8 & 42.33 & 47.1 & 59.08  & No Official Score \\
-				\hline
-				\textbf{TruthfulQA} & 60.18 & 50.27 & 54.04 & No Official Score & 64.77 & 56.4 \\
-				\hline
-				\textbf{IFEval} & 76.02 & No Official Score & 61.75 & 76.8 & 73.02 & 71.2 \\
-				\hline
-				\label{baseline-scores}
-			\end{tabular}
-			
-			\begin{figure}[H]
-				\centering
-				\includegraphics[width=0.9\textwidth,height=0.4\textwidth]{images/gguf-sizes.png}
-				\label{fig:gguf-sizes}
-			\end{figure}
-			\captionof{figure}{\gls{gguf} Sizes}
+		\begin{minipage}{\textwidth}\centering
+			\begin{ganttchart}[
+				y unit title=0.4cm,
+				y unit chart=0.5cm,
+				vgrid,hgrid,
+				x unit=0.4cm,
+				title label anchor/.style={below=-1.6ex},
+				bar/.style={fill=blue!30},
+				milestone/.style={shape=circle, fill=green!30},
+				group/.style={fill=orange!30},
+				title left shift=.05,
+				title right shift=-.05,
+				title height=1,
+				progress label text={},
+				bar height=0.7,
+				group right shift=0,
+				group top shift=.6,
+				group height=.3]{1}{32}
+				
+				%labels
+				\gantttitle{Months}{32} \\
+				\gantttitle{January}{4} 
+				\gantttitle{February}{4} 
+				\gantttitle{March}{4} 
+				\gantttitle{April}{4} 
+				\gantttitle{May}{4}
+				\gantttitle{June}{4}
+				\gantttitle{July}{4}
+				\gantttitle{August}{4}\\
+				
+				\ganttbar{Preparation \& Setup}{1}{3}\\
+				\ganttbar{Quantization}{4}{9}\\
+				\ganttbar{Pruning}{10}{13}\\
+				\ganttbar{Interim Report}{14}{16}\\
+				\ganttbar{Evaluation \& Edge Device Test}{17}{25}\\
+				\ganttbar{Finalizing}{26}{32}\\
+				
+				% Concurrent task
+				\ganttbar[bar/.style={fill=red!30}]{Revising \& Updating}{4}{28}\\
+			\end{ganttchart}
 		\end{minipage}
 	\end{strip}
-	
-	\subsection{\gls{gguf} Quantization}
-	Starting with \gls{gguf} quantization method, which requires the LLamaCPP project on Github \cite{llamacpp}. In order to quantize a model, it is first necessary to convert (i.e. package) the model into a \gls{gguf} format, which is achieved using the \verb|convert_hf_to_gguf.py| Python script within the LLamaCPP repository and produces a full precision FP16 \gls{gguf} model file.
-	
-	In order to quantize this \gls{gguf} file to a desired quant, it's necessary to compile LLamaCPP project using \verb|cmake|. The resulting binaries include \verb|llama-quantize| which is responsible for quantizing the full precision \gls{gguf} file outputted by the Python script earlier. 
-	
-	For I-Matrix quantization types, due to their very low precision, it's required to compute the importance matrix from the full precision model in order to determine important weights, this can be done using another compiled binary \verb|llama-imatrix| and training file (e.g. wiki.train.raw) which will be used for inferencing the model and identifying important weights. When quantizing a \gls{gguf} file with imatrix support, it's necessary to provide it the output of \verb|llama-imatrix| so that quantization is aware of important weights.
-	
-	\begin{figure}[H]
-		\centering
-		\begin{lstlisting}[language=bash,numbers=none]
-			# Convert gemma2-9B-it model to GGUF format
-			python convert_hf_to_gguf.py \
-			--outfile Gemma2-GGUF/ gemma-2-9B-it/
-			
-			# Compile LLamaCPP binaries
-			cmake -B build -DGGML_CUDA=ON
-			cmake --build build --config Release -j 8
-			
-			# Compute importance matrix
-			./llama.cpp/build/bin/llama-imatrix \
-			-m Gemma2-GGUF/gemma-2-9B-it-F16.gguf \
-			-f wikitext-2-raw/wiki.train.raw \
-			-o Gemma2-GGUF/imatrix_gemma2.dat \
-			--chunk 100 \
-			--n-gpu-layers 99
-			
-			# Quantize to Q8
-			./llama.cpp/build/bin/llama-quantize \
-			./Gemma2-GGUF/gemma-2-9B-it-F16.gguf \
-			./Gemma2-GGUF/gemma-2-9B-it-IQ1_S.gguf \
-			IQ1_S
-			
-			# Quantize to IQ1_S
-			./llama.cpp/build/bin/llama-quantize \
-			--imatrix Gemma2-GGUF/imatrix_gemma2.dat \
-			./Gemma2-GGUF/gemma-2-9B-it-F16.gguf \
-			./Gemma2-GGUF/gemma-2-9B-it-IQ1_S.gguf \
-			IQ1_S
-		\end{lstlisting}
-		\captionof{figure}{\gls{gguf} quantization command for Gemma2 9B}
-		\label{gguf-command}
-	\end{figure}
-	
-	
-	\subsubsection{Gemma2 9B}
-	The table \ref{tab:geamm2_gguf_scores} shows the Gemma2 9B model quantized using \gls{gguf} quantization and it's performance on various benchmarks.
-	
-	\begin{table}[H] % Use the H option to force the table to appear here
-		\centering
-		\caption{Gemma2 9B \gls{gguf} Scores}
-		\begin{tabular}{|>{\centering\arraybackslash}m{1.8cm}|*{4}{>{\centering\arraybackslash}m{1.2cm}|}}
-			\hline
-			\textbf{Benchmark Test} & \textbf{Q8} & \textbf{Q6\_K} & \textbf{Q5\_K\_M} & \textbf{Q4\_K\_M}  \\
-			\hline
-			Hellaswag & 65.45 & 65.21 & 65.08 & 64.79 \\
-			\hline
-			AGIEval & - & - & - & - \\
-			\hline
-			TruthfulQA & 62.25 & 62.15 & 62.07& 62.37 \\
-			\hline
-			IFEval & 34.41 & 35.49 & 35.61 & 35.97 \\
-			\hline
-		\end{tabular}
-		\label{tab:geamm2_gguf_scores}
-	\end{table}
-	
-	\subsubsection{LLama3.1 8B}
-	The table \ref{tab:llama3.1_gguf_scores} shows the LLama3.1 8B model quantized using \gls{gguf} quantization and it's performance on various benchmarks.
-	
-	\begin{table}[H] % Use the H option to force the table to appear here
-		\centering
-		\caption{LLama3.1 8B \gls{gguf} Scores}
-		\begin{tabular}{|>{\centering\arraybackslash}m{1.8cm}|*{4}{>{\centering\arraybackslash}m{1.2cm}|}}
-			\hline
-			\textbf{Benchmark Test} & \textbf{Q8} & \textbf{Q6\_K} & \textbf{Q5\_K\_M} & \textbf{Q4\_K\_M}  \\
-			\hline
-			Hellaswag & 79.19 & 79.09 & 78.99 & 78.74 \\
-			\hline
-			AGIEval & - & - & - & - \\
-			\hline
-			TruthfulQA & 54.01 & 53.78 & 53.37 & 52.56 \\
-			\hline
-			IFEval & 59.95 & 59.83 & 59.59 & 56.35 \\
-			\hline
-		\end{tabular}
-		\label{tab:llama3.1_gguf_scores}
-	\end{table}
-	
-	\subsubsection{Qwen2.5 7B}
-	The table \ref{tab:qwen2.5_gguf_scores} shows the Qwen2.5 7B model quantized using \gls{gguf} quantization and it's performance on various benchmarks.
-	
-	\begin{table}[H] % Use the H option to force the table to appear here
-		\centering
-		\caption{Qwen2.5 7B \gls{gguf} Scores}
-		\begin{tabular}{|>{\centering\arraybackslash}m{1.8cm}|*{4}{>{\centering\arraybackslash}m{1.2cm}|}}
-			\hline
-			\textbf{Benchmark Test} & \textbf{Q8} & \textbf{Q6\_K} & \textbf{Q5\_K\_M} & \textbf{Q4\_K\_M}  \\
-			\hline
-			Hellaswag & 80.46 & 80.34 & 80.37 & 80.19 \\
-			\hline
-			AGIEval & - & - & - & - \\
-			\hline
-			TruthfulQA & 64.72 & 65.23 & 65.37 & 64.28 \\
-			\hline
-			IFEval & 71.34 & 73.50 & 71.10 & 71.46 \\
-			\hline
-		\end{tabular}
-		\label{tab:qwen2.5_gguf_scores}
-	\end{table}
-	
 	
 	\section{Conclusion}
 	In conclusion, this research proposal has suggested various popular \gls{llm} compression methods that can be used to reduce hardware requirements for inferencing \glspl{llm}. The proposal has laid out its working theory and design methods for how this research will be conducted.
@@ -414,46 +288,44 @@
 	\pagebreak
 	
 	\appendix
-	
 	\section{Perplexity calculation code}
 	\label{appendix:perplexity}
 	\begin{minipage}{\textwidth}
 		\begin{lstlisting}[language=Python, caption=\url{https://gist.github.com/izikeros/e97a9d3359f3872b5e74cb36380c46ae}]
-			# gist for the blog post on https://safjan.com
-			import tiktoken
-			import math
-			
-			# Exemplary text
-			text = "Another vital aspect to consider in the realm of text generation is perplexity. Essentially, perplexity refers to the amount of information contained within a text. Natural language possesses a remarkable redundancy that enables effective communication, even in noisy environments such as a crowded bar or an intimate dinner. This redundancy allows for the overall message to be comprehended, even if certain parts of the text are missing or obscured."
-			
-			# Tokenize the text using tiktoken
-			tokens = tiktoken.tokenize(text)
-			
-			# Calculate the total number of tokens
-			total_tokens = len(tokens)
-			
-			# Create a dictionary to count the frequency of each token
-			token_freq = {}
-			for token in tokens:
-			if token in token_freq:
-			token_freq[token] += 1
-			else:
-			token_freq[token] = 1
-			
-			# Calculate the probability of each token
-			token_probabilities = {token: freq / total_tokens for token, freq in token_freq.items()}
-			
-			# Calculate the text probability by multiplying the probabilities of each token
-			text_probability = 1.0
-			for token in tokens:
-			text_probability *= token_probabilities[token]
-			
-			# Calculate the perplexity using the formula
-			perplexity = math.pow(text_probability, -1/total_tokens)
-			
-			print(f"Perplexity of the text: {perplexity:.2f}")
-		\end{lstlisting}
+		# gist for the blog post on https://safjan.com
+		import tiktoken
+		import math
 		
+		# Exemplary text
+		text = "Another vital aspect to consider in the realm of text generation is perplexity. Essentially, perplexity refers to the amount of information contained within a text. Natural language possesses a remarkable redundancy that enables effective communication, even in noisy environments such as a crowded bar or an intimate dinner. This redundancy allows for the overall message to be comprehended, even if certain parts of the text are missing or obscured."
+		
+		# Tokenize the text using tiktoken
+		tokens = tiktoken.tokenize(text)
+		
+		# Calculate the total number of tokens
+		total_tokens = len(tokens)
+		
+		# Create a dictionary to count the frequency of each token
+		token_freq = {}
+		for token in tokens:
+		if token in token_freq:
+		token_freq[token] += 1
+		else:
+		token_freq[token] = 1
+		
+		# Calculate the probability of each token
+		token_probabilities = {token: freq / total_tokens for token, freq in token_freq.items()}
+		
+		# Calculate the text probability by multiplying the probabilities of each token
+		text_probability = 1.0
+		for token in tokens:
+		text_probability *= token_probabilities[token]
+		
+		# Calculate the perplexity using the formula
+		perplexity = math.pow(text_probability, -1/total_tokens)
+		
+		print(f"Perplexity of the text: {perplexity:.2f}")
+		\end{lstlisting}
 	\end{minipage}
 	
 \end{document}
