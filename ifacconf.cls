@@ -1687,13 +1687,11 @@ et\or eu\or ew\or ex\or ey\or ez\else\@ctrerr\fi}
 }
 %\newif\ifNAT@numbers
 \AtBeginDocument{%
-%\@ifpackageloaded{harvard}{}{
-%  \RequirePackage{natbib}
-%  \bibliographystyle{plain}
+\@ifpackageloaded{harvard}{}{
+  \RequirePackage{natbib}
+  \bibliographystyle{plain}
   %\bibliographystyle{ifacconf}
-%}}
-\bibliographystyle{plain}
-}
+}}
 \@bsphack
 %\AtEndDocument
 %  {\immediate\write\@auxout{\string\global\string\NAT@numbersfalse}}
